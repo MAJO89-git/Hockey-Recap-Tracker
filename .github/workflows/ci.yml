@@ -31,3 +31,6 @@ jobs:
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test tests/HockeyRecapTracker.Tests/HockeyRecapTracker.Tests.csproj --configuration Release
