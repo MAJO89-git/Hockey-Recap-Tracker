@@ -71,4 +71,20 @@ public class VideoFilterTests
         // Assert
         Assert.True(result);
     }
+
+    // Rejects NHL highlights that do not include the followed team.
+    [Fact]
+    public void IsMatch_WhenNhlTitleDoesNotContainFollowedTeam_ReturnsFalse()
+    {
+        // Arrange
+        string title = "Devils vs. Predators | NHL Highlights | Oct 28, 2026";
+        string[] teamAliases = ["Avalanche"];
+        string[] recapKeywords = ["NHL Highlights"];
+
+        // Act
+        bool result = VideoFilter.IsMatch(title, teamAliases, recapKeywords);
+
+        // Assert
+        Assert.False(result);
+    }
 }
