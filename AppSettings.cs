@@ -10,6 +10,7 @@ public class ChannelSettings
     public string Name { get; set; } = "";
     public List<TeamSettings> Teams { get; set; } = [];
     public List<string> RecapKeywords { get; set; } = [];
+    public string UploadsPlaylistId { get; set; } = "";
 }
 
 public class TeamSettings
