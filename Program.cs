@@ -8,37 +8,37 @@ AppSettings settings = JsonSerializer.Deserialize<AppSettings>(json)
 string apiKey = Environment.GetEnvironmentVariable("YOUTUBE_API_KEY")
     ?? throw new InvalidOperationException("Set the YOUTUBE_API_KEY environment variable.");
 
-ChannelSettings channel = settings.Channels.Single(channel => channel.Name == "NHL");
-
-string playlistId = Uri.EscapeDataString(channel.UploadsPlaylistId);
-string url = "https://www.googleapis.com/youtube/v3/playlistItems"
-    + $"?part=snippet,contentDetails&maxResults=25&playlistId={playlistId}"
-    + $"&key={Uri.EscapeDataString(apiKey)}";
-
 using var httpClient = new HttpClient();
-using HttpResponseMessage response = await httpClient.GetAsync(url);
 
-Console.WriteLine($"YouTube API: {(int)response.StatusCode} {response.StatusCode}");
-
-response.EnsureSuccessStatusCode();
-
-using Stream responseBody = await response.Content.ReadAsStreamAsync();
-using JsonDocument document = await JsonDocument.ParseAsync(responseBody);
-
-foreach (JsonElement item in document.RootElement.GetProperty("items").EnumerateArray())
+foreach (ChannelSettings channel in settings.Channels)
 {
-    string? title = item.GetProperty("snippet").GetProperty("title").GetString();
+    string playlistId = Uri.EscapeDataString(channel.UploadsPlaylistId);
+    string url = "https://www.googleapis.com/youtube/v3/playlistItems"
+        + $"?part=snippet,contentDetails&maxResults=25&playlistId={playlistId}"
+        + $"&key={Uri.EscapeDataString(apiKey)}";
 
-    if (string.IsNullOrWhiteSpace(title))
-    {
-        continue;
-    }
+    using HttpResponseMessage response = await httpClient.GetAsync(url);
+    Console.WriteLine($"{channel.Name}: YouTube API {(int)response.StatusCode} {response.StatusCode}");
+    response.EnsureSuccessStatusCode();
 
-    foreach (TeamSettings team in channel.Teams)
+    using Stream responseBody = await response.Content.ReadAsStreamAsync();
+    using JsonDocument document = await JsonDocument.ParseAsync(responseBody);
+
+    foreach (JsonElement item in document.RootElement.GetProperty("items").EnumerateArray())
     {
-        if (VideoFilter.IsMatch(title, team.Aliases, channel.RecapKeywords))
+        string? title = item.GetProperty("snippet").GetProperty("title").GetString();
+
+        if (string.IsNullOrWhiteSpace(title))
         {
-            Console.WriteLine($"{channel.Name}: New recap for {team.Name}");
+            continue;
+        }
+
+        foreach (TeamSettings team in channel.Teams)
+        {
+            if (VideoFilter.IsMatch(title, team.Aliases, channel.RecapKeywords))
+            {
+                Console.WriteLine($"{channel.Name}: New recap for {team.Name}");
+            }
         }
     }
 }
