@@ -10,6 +10,13 @@ string apiKey = Environment.GetEnvironmentVariable("YOUTUBE_API_KEY")
 
 using var httpClient = new HttpClient();
 
+const string seenVideosPath = "seen-videos.txt";
+bool isFirstRun = !File.Exists(seenVideosPath);
+
+var seenVideoIds = isFirstRun
+    ? new HashSet<string>(StringComparer.Ordinal)
+    : new HashSet<string>(File.ReadLines(seenVideosPath), StringComparer.Ordinal);
+
 foreach (ChannelSettings channel in settings.Channels)
 {
     string playlistId = Uri.EscapeDataString(channel.UploadsPlaylistId);
@@ -34,6 +41,13 @@ foreach (ChannelSettings channel in settings.Channels)
             continue;
         }
 
+        bool isNewVideo = seenVideoIds.Add(videoId);
+
+        if (isFirstRun || !isNewVideo)
+        {
+            continue;
+        }
+
         foreach (TeamSettings team in channel.Teams)
         {
             if (VideoFilter.IsMatch(title, team.Aliases, channel.RecapKeywords))
@@ -43,3 +57,4 @@ foreach (ChannelSettings channel in settings.Channels)
         }
     }
 }
+File.WriteAllLines(seenVideosPath, seenVideoIds);
