@@ -480,3 +480,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+
+# Local test before i use a database
+/seen-videos.txt
