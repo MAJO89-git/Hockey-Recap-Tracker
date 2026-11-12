@@ -3,6 +3,7 @@ namespace HockeyRecapTracker;
 public class AppSettings
 {
     public List<ChannelSettings> Channels { get; set; } = [];
+    public int CheckIntervalMinutes { get; set; } = 10;
 }
 
 public class ChannelSettings
