@@ -1,4 +1,4 @@
-﻿using HockeyRecapTracker;
+using HockeyRecapTracker;
 
 namespace HockeyRecapTracker.Tests;
 
