@@ -27,8 +27,9 @@ foreach (ChannelSettings channel in settings.Channels)
     foreach (JsonElement item in document.RootElement.GetProperty("items").EnumerateArray())
     {
         string? title = item.GetProperty("snippet").GetProperty("title").GetString();
+        string? videoId = item.GetProperty("contentDetails").GetProperty("videoId").GetString();
 
-        if (string.IsNullOrWhiteSpace(title))
+        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(videoId))
         {
             continue;
         }
@@ -37,7 +38,7 @@ foreach (ChannelSettings channel in settings.Channels)
         {
             if (VideoFilter.IsMatch(title, team.Aliases, channel.RecapKeywords))
             {
-                Console.WriteLine($"{channel.Name}: New recap for {team.Name}");
+                Console.WriteLine($"{channel.Name}: New recap for {team.Name} (video ID: {videoId})");
             }
         }
     }
